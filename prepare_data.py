@@ -199,6 +199,9 @@ def main(args, device="cuda:0"):
                 bdata_poses = bdata["poses"][downsamp_inds, ...]
                 bdata_trans = bdata["trans"][downsamp_inds, ...]
                 smpl_gender = bdata["gender"]
+                if isinstance(smpl_gender, np.ndarray):
+                    smpl_gender = smpl_gender.item()
+                smpl_gender = str(smpl_gender)
 
                 body_parms = {
                     "root_orient": torch.Tensor(
@@ -215,6 +218,7 @@ def main(args, device="cuda:0"):
                 body_parms["betas"] = torch.Tensor(bdata_betas).repeat(
                     bdata_poses.shape[0], 1
                 )
+                
                 body_pose_world = body_model(
                     {k: v.to(device) for k, v in body_parms.items()},
                     body_model_type,
@@ -255,7 +259,7 @@ def run():
     parser.add_argument(
         "--support_dir",
         type=str,
-        default=None,
+        default="./SMPL",
         help="=dir where you put your smplh and dmpls dirs",
     )
     parser.add_argument(
